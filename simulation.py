@@ -2,7 +2,7 @@ import sys
 import math
 import random
 
-INF = sys.max
+INF = sys.maxsize
 
 
 def generateTime(a, s):
@@ -39,7 +39,7 @@ def simulation(
             T.append(generateTime(a, t))
             tA = T[-1]
             A[Na] = t
-            if n = 0 and all(v == 0 for v in i):  # if it is the first event
+            if n == 0 and all(v == 0 for v in i):  # if it is the first event
                 n = 1
                 i[0] = Na
                 Y = generateTime(a, t)
