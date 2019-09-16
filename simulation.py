@@ -28,11 +28,13 @@ def simulation(
 
     # Outputs
     # ---------------------------------
-    A = {}
-    D = {}
+    A = []
+    D = []
 
     while True:
-        print(t)
+        """ print(A)
+        print(D)
+        print(n) """
         # cases
         if tA == min([tA] + tD) and tA < Tn:  # if tA is the next event
             # print("First case")
@@ -41,15 +43,15 @@ def simulation(
             to = t + generateTime(a)
             T.append(to)
             tA = to
-            
-            A[Na] = t
+
+            A.append(t)
             if n == 0 and all(v == 0 for v in i):  # if it is the first event
                 n = 1
                 i[0] = Na
                 Y = generateTime(a)
                 tD[0] = t + Y
             # if there are less clients  than servers
-            if n < servers:
+            elif n <= servers:
                 # find the empty server
                 for index, server in enumerate(i):
                     if server == 0:  # is empty
@@ -67,14 +69,13 @@ def simulation(
                 # print("Second case")
                 t = ti
                 C[index] = C[index] + 1
-                D[index] = t
-                if n <= servers:  # if there are less clients on sistem than servers
-                    for j, server in enumerate(i):
-                        if n == j:
-                            n = n - 1
-                            i[j] = 0
-                            tD[index] = INF
-                            break
+                D.append(t)
+
+                if n <= servers:
+                    server2finish = tD.index(min(tD))
+                    n = n - 1
+                    i[server2finish] = 0
+                    tD[index] = INF
                 else:
                     m = max(i)
                     n = n - 1
@@ -84,27 +85,27 @@ def simulation(
 
         if min([tA] + tD) > Tn and n > 0:
             print("Third case")
-            todo = [tA] + tD
-            td = min(todo)
+            td = min(tD)
             nxt = tD.index(min(tD))  # id of i server to finish
             t = td
             n = n - 1
-            i[nxt] = max(i) + 1
+            C[nxt] = C[nxt] + 1
             if n > 0:
                 Y = generateTime(a)
                 tD[nxt] = t + Y
-                D[nxt] = t
+                D.append(t)
 
-        if min([tA] + tD) > Tn and n == 0:
+        elif min([tA] + tD) > Tn and n == 0:
             print("Fourth case")
             m = min(tD)
             t = m
             Tp = max(t - Tn, 0)
-            return A, D, Tp, t
+            return A, D, Tp, C, Na, t
 
-A, D, Tp, t = simulation(10, 2000, 40)
+A, D, Tp, C, Na, t = simulation(10, 100, 40)
 
 print(len(A))
 print(len(D))
-print(D)
+print(sum(C))
+print(Na)
 print(t)
