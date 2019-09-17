@@ -1,5 +1,6 @@
 import sys
 import math
+import time
 import random
 
 INF = sys.maxsize
@@ -12,7 +13,8 @@ def generateTime(a):
 def simulation(
     servers,  # numero de servers
     Tn,  # Tiempo final
-    a  # lambda to generate times
+    a,  # lambda for next arrival
+    b,  # lambda for next finish
 ):
     # State
     # ---------------------------------
@@ -32,9 +34,11 @@ def simulation(
     D = []
 
     while True:
-        """ print(A)
-        print(D)
-        print(n) """
+        """ print("entrada: ", len(A))
+        print("salida: ", len(D))
+        print("ejecución: ", len(list(filter(lambda x: x != 0, list(i)))))
+        print("dentro", n)
+        input() """
         # cases
         if tA == min([tA] + tD) and tA < Tn:  # if tA is the next event
             # print("First case")
@@ -43,21 +47,15 @@ def simulation(
             to = t + generateTime(a)
             T.append(to)
             tA = to
-
             A.append(t)
-            if n == 0 and all(v == 0 for v in i):  # if it is the first event
-                n = 1
-                i[0] = Na
-                Y = generateTime(a)
-                tD[0] = t + Y
             # if there are less clients  than servers
-            elif n <= servers:
+            if n < servers:
                 # find the empty server
                 for index, server in enumerate(i):
                     if server == 0:  # is empty
                         n = n + 1
                         i[index] = Na
-                        Y = generateTime(a)
+                        Y = generateTime(b)
                         tD[index] = t + Y
                         break
             # there is no space
@@ -70,17 +68,17 @@ def simulation(
                 t = ti
                 C[index] = C[index] + 1
                 D.append(t)
+                n = n - 1
 
                 if n <= servers:
                     server2finish = tD.index(min(tD))
-                    n = n - 1
                     i[server2finish] = 0
                     tD[index] = INF
                 else:
                     m = max(i)
-                    n = n - 1
-                    i[index] = m + 1
-                    Y = generateTime(a)
+                    server2finish = tD.index(min(tD))
+                    i[server2finish] = m + 1
+                    Y = generateTime(b)
                     tD[index] = t + Y
 
         if min([tA] + tD) > Tn and n > 0:
@@ -91,7 +89,7 @@ def simulation(
             n = n - 1
             C[nxt] = C[nxt] + 1
             if n > 0:
-                Y = generateTime(a)
+                Y = generateTime(b)
                 tD[nxt] = t + Y
                 D.append(t)
 
@@ -99,13 +97,17 @@ def simulation(
             print("Fourth case")
             m = min(tD)
             t = m
+            D.append(t)
             Tp = max(t - Tn, 0)
             return A, D, Tp, C, Na, t
 
-A, D, Tp, C, Na, t = simulation(10, 100, 40)
-
+start = time.time()
+A, D, Tp, C, Na, t = simulation(10, 86400/10, 40, 1)
+end = time.time()
 print(len(A))
 print(len(D))
 print(sum(C))
 print(Na)
 print(t)
+print(end - start)
+
