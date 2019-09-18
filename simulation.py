@@ -30,8 +30,9 @@ def simulation(
 
     # Outputs
     # ---------------------------------
-    A = []
-    D = []
+    A = []  # List of arrivals times
+    Q = []  # List of when it enters server
+    D = []  # List of departures times
 
     while True:
         """ print("entrada: ", len(A))
@@ -53,6 +54,7 @@ def simulation(
                 # find the empty server
                 for index, server in enumerate(i):
                     if server == 0:  # is empty
+                        Q.append(t)
                         n = n + 1
                         i[index] = Na
                         Y = generateTime(b)
@@ -74,40 +76,44 @@ def simulation(
                     server2finish = tD.index(min(tD))
                     i[server2finish] = 0
                     tD[index] = INF
-                else:
+                elif n > servers:
+                    Q.append(t)
                     m = max(i)
                     server2finish = tD.index(min(tD))
                     i[server2finish] = m + 1
                     Y = generateTime(b)
                     tD[index] = t + Y
+            else:
+                continue
 
         if min([tA] + tD) > Tn and n > 0:
-            print("Third case")
             td = min(tD)
             nxt = tD.index(min(tD))  # id of i server to finish
             t = td
             n = n - 1
             C[nxt] = C[nxt] + 1
-            if n > 0:
+            i[nxt] = 0
+            D.append(t)
+            if n > servers:
+                Q.append(t)
                 Y = generateTime(b)
+                i[nxt] = max(i) + 1
                 tD[nxt] = t + Y
-                D.append(t)
 
         elif min([tA] + tD) > Tn and n == 0:
             print("Fourth case")
             m = min(tD)
             t = m
-            D.append(t)
             Tp = max(t - Tn, 0)
-            return A, D, Tp, C, Na, t
+            return A, D, Tp, C, Q, Na, t
 
 start = time.time()
-A, D, Tp, C, Na, t = simulation(10, 86400/10, 40, 1)
+A, D, Tp, C, Q, Na, t = simulation(10, 86400 / 100, 40, 5)
 end = time.time()
 print(len(A))
 print(len(D))
 print(sum(C))
+print("Entro:" + str(len(Q)))
 print(Na)
 print(t)
 print(end - start)
-
