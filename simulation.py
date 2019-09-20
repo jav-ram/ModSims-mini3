@@ -84,15 +84,15 @@ def simulation(
             C[index] = C[index] + 1
             D.append(t)
             n = n - 1
-            if n < servers:
-                i[index] = 0
-                tD[index] = INF
-            else:
+            if n >= servers:
                 Q.append(t)
                 m = max(i)
                 i[index] = m + 1
                 Y = generateTime(b)
                 tD[index] = t + Y
+            else:
+                i[index] = 0
+                tD[index] = INF
 
         elif min([tA] + tD) > Tn and n > 0:
             td = min(tD)
@@ -101,7 +101,7 @@ def simulation(
             n = n - 1
             C[nxt] = C[nxt] + 1
             D.append(t)
-            if n > servers:
+            if n >= servers:
                 Q.append(t)
                 Y = generateTime(b)
                 i[nxt] = max(i) + 1
@@ -117,7 +117,7 @@ def simulation(
             return A, D, Tp, C, Q, Na, t, i
 
 start = time.time()
-A, D, Tp, C, Q, Na, t, i = simulation(10, 86400 / 100, 40, 5)
+A, D, Tp, C, Q, Na, t, i = simulation(1, 3600, 10, 100)
 end = time.time()
 print('time: ', t)
 working = sum(np.subtract(D, Q)) / 10
