@@ -77,48 +77,47 @@ def simulation(
             else:
                 # add to wait
                 n = n + 1
-        for index, ti in enumerate(tD):
-            if ti == min([tA] + tD) and ti < Tn:  # if ti is the next event
-                # print("Second case")
-                t = ti
-                C[index] = C[index] + 1
-                D.append(t)
-                n = n - 1
-
-                if n < servers:
-                    i[index] = 0
-                    tD[index] = INF
-                else:
-                    Q.append(t)
-                    m = max(i)
-                    i[index] = m + 1
-                    Y = generateTime(b)
-                    tD[index] = t + Y
+        elif min(tD) == min([tA] + tD) and min([tA] + tD) < Tn:  # if tD is the next event
+            ti = min(tD)
+            index = tD.index(min(tD))
+            t = ti
+            C[index] = C[index] + 1
+            D.append(t)
+            n = n - 1
+            if n < servers:
+                i[index] = 0
+                tD[index] = INF
             else:
-                continue
+                Q.append(t)
+                m = max(i)
+                i[index] = m + 1
+                Y = generateTime(b)
+                tD[index] = t + Y
 
-        if min([tA] + tD) > Tn and n > 0:
+        elif min([tA] + tD) > Tn and n > 0:
             td = min(tD)
             nxt = tD.index(min(tD))  # id of i server to finish
             t = td
             n = n - 1
             C[nxt] = C[nxt] + 1
-            i[nxt] = 0
             D.append(t)
             if n > servers:
                 Q.append(t)
                 Y = generateTime(b)
                 i[nxt] = max(i) + 1
                 tD[nxt] = t + Y
+            else:
+                i[nxt] = 0
+                tD[nxt] = INF
 
         elif min([tA] + tD) > Tn and n == 0:
             print("Fourth case")
             t = t + abs(t - D[-1])
             Tp = max(t - Tn, 0)
-            return A, D, Tp, C, Q, Na, t
+            return A, D, Tp, C, Q, Na, t, i
 
 start = time.time()
-A, D, Tp, C, Q, Na, t = simulation(1, 1, 600, 6000)
+A, D, Tp, C, Q, Na, t, i = simulation(10, 86400 / 100, 40, 5)
 end = time.time()
 print('time: ', t)
 working = sum(np.subtract(D, Q)) / 10
@@ -132,3 +131,4 @@ print("Requests: " + str(len(Q)))
 
 print(end - start)
 # get_min_servers(4, 5)
+print(i)
