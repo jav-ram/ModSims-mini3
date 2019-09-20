@@ -2,8 +2,21 @@ import sys
 import math
 import time
 import random
+import numpy as np
 
 INF = sys.maxsize
+
+
+def get_min_servers(start, tests):
+    for i in range(tests):
+        print('With ', i + start, ' ant servers')
+        A, D, Tp, C, Q, Na, t = simulation(i + start, 1440, 2400, 600)
+        print(Na)
+        print(A[-1], Q[-1], D[-1])
+        print(A[0], Q[0], D[0])
+        waiting = sum(np.subtract(Q, A))
+        print('Waiting time: ', waiting)
+        print('average waiting time: ', waiting / Na)
 
 
 def generateTime(a):
@@ -72,15 +85,13 @@ def simulation(
                 D.append(t)
                 n = n - 1
 
-                if n <= servers:
-                    server2finish = tD.index(min(tD))
-                    i[server2finish] = 0
+                if n < servers:
+                    i[index] = 0
                     tD[index] = INF
-                elif n > servers:
+                else:
                     Q.append(t)
                     m = max(i)
-                    server2finish = tD.index(min(tD))
-                    i[server2finish] = m + 1
+                    i[index] = m + 1
                     Y = generateTime(b)
                     tD[index] = t + Y
             else:
@@ -102,18 +113,22 @@ def simulation(
 
         elif min([tA] + tD) > Tn and n == 0:
             print("Fourth case")
-            m = min(tD)
-            t = m
+            t = t + abs(t - D[-1])
             Tp = max(t - Tn, 0)
             return A, D, Tp, C, Q, Na, t
 
 start = time.time()
-A, D, Tp, C, Q, Na, t = simulation(10, 86400 / 100, 40, 5)
+A, D, Tp, C, Q, Na, t = simulation(1, 1, 600, 6000)
 end = time.time()
-print(len(A))
-print(len(D))
-print(sum(C))
-print("Entro:" + str(len(Q)))
-print(Na)
-print(t)
+print('time: ', t)
+working = sum(np.subtract(D, Q)) / 10
+idle = t - working
+waiting = sum(np.subtract(Q, A))
+print('Working time: ', working)
+print('IDLE time: ', idle)
+print('Waiting time: ', waiting)
+print('average waiting time: ', waiting / Na)
+print("Requests: " + str(len(Q)))
+
 print(end - start)
+# get_min_servers(4, 5)
